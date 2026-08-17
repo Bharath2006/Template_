@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Template Structure & Document Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #1a2332;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1a2332 0%, #2d3748 100%);
+            color: white;
+            padding: 24px 32px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            opacity: 0.8;
+            font-size: 16px;
+        }
+
+        /* Step Indicator */
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            position: relative;
+        }
+
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 45px;
+            left: 40px;
+            right: 40px;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 0;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .step.active .step-circle {
+            background: #4299e1;
+            color: white;
+            box-shadow: 0 0 0 4px rgba(66, 153, 225, 0.3);
+        }
+
+        .step.completed .step-circle {
+            background: #48bb78;
+            color: white;
+        }
+
+        .step-label {
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .step.active .step-label {
+            color: #2b6cb0;
+            font-weight: 600;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1a2332;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title .badge {
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 12px;
+            background: #ebf4ff;
+            color: #2b6cb0;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f7fafc;
+        }
+
+        .upload-area:hover {
+            border-color: #4299e1;
+            background: #ebf8ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #4299e1;
+            background: #ebf8ff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .upload-text {
+            font-size: 16px;
+            color: #4a5568;
+        }
+
+        .upload-text strong {
+            color: #2b6cb0;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+
+        .file-info .file-name {
+            flex: 1;
+            font-weight: 500;
+            color: #1a2332;
+        }
+
+        .file-info .file-size {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .file-info .file-type {
+            padding: 4px 12px;
+            background: #e2e8f0;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a5568;
+            text-transform: uppercase;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3182ce;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #fc8181;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #f56565;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-outline:hover {
+            border-color: #4299e1;
+            color: #4299e1;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        /* JSON Editor */
+        .json-editor {
+            font-family: 'Courier New', monospace;
+            width: 100%;
+            min-height: 300px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #f7fafc;
+            resize: vertical;
+        }
+
+        .json-editor:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        }
+
+        /* Prompt Box */
+        .prompt-box {
+            width: 100%;
+            min-height: 100px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .prompt-box:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        }
+
+        /* Format Selector */
+        .format-selector {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .format-option {
+            padding: 8px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .format-option:hover {
+            border-color: #4299e1;
+            color: #4299e1;
+        }
+
+        .format-option.selected {
+            border-color: #4299e1;
+            background: #ebf8ff;
+            color: #2b6cb0;
+        }
+
+        /* Grid Layout */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+        }
+
+        .notification-success {
+            background: #48bb78;
+        }
+
+        .notification-error {
+            background: #fc8181;
+        }
+
+        .notification-info {
+            background: #4299e1;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #4299e1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Preview */
+        .preview-container {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 16px;
+            min-height: 200px;
+            max-height: 500px;
+            overflow: auto;
+        }
+
+        .preview-container pre {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .step-label {
+                display: none;
+            }
+            .step-indicator {
+                padding: 10px 0;
+            }
+            .step-indicator::before {
+                display: none;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .upload-area {
+                padding: 20px;
+            }
+        }
+
+        /* Status indicators */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #edf2f7;
+            color: #4a5568;
+        }
+
+        .status-processing {
+            background: #bee3f8;
+            color: #2b6cb0;
+        }
+
+        .status-complete {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .status-error {
+            background: #fed7d7;
+            color: #9b2c2c;
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-bar .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4299e1, #48bb78);
+            transition: width 0.5s ease;
+            width: 0%;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🤖 AI Template Structure & Document Generator</h1>
+            <p>Upload a template, let AI generate content, and download your document</p>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator" id="stepIndicator">
+            <div class="step active" data-step="1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Upload</div>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Analyze</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Edit</div>
+            </div>
+            <div class="step" data-step="4">
+                <div class="step-circle">4</div>
+                <div class="step-label">Generate</div>
+            </div>
+            <div class="step" data-step="5">
+                <div class="step-circle">5</div>
+                <div class="step-label">Render</div>
+            </div>
+            <div class="step" data-step="6">
+                <div class="step-circle">6</div>
+                <div class="step-label">Download</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="grid-2">
+            <!-- Left Column -->
+            <div>
+                <!-- Upload Section -->
+                <div class="card">
+                    <div class="card-title">
+                        📤 Upload Template
+                        <span class="badge">Step 1</span>
+                    </div>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📄</div>
+                        <div class="upload-text">
+                            <strong>Drag & drop</strong> a file here, or click to select
+                        </div>
+                        <div style="font-size: 14px; color: #718096; margin-top: 8px;">
+                            Supported: PPTX, PDF, DOCX, XLSX (Max 50MB)
+                        </div>
+                        <input type="file" id="fileInput" style="display: none;" accept=".pptx,.pdf,.docx,.xlsx">
+                    </div>
+                    <div id="fileInfo" style="display: none;" class="file-info">
+                        <span>📎</span>
+                        <span class="file-name" id="fileName"></span>
+                        <span class="file-size" id="fileSize"></span>
+                        <span class="file-type" id="fileType"></span>
+                        <button class="btn btn-danger" onclick="removeFile()" style="padding: 4px 12px;">✕</button>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="analyzeBtn" disabled onclick="analyzeFile()">
+                            🔍 Analyze Template
+                        </button>
+                    </div>
+                    <div class="progress-bar" id="uploadProgress" style="display: none;">
+                        <div class="progress-fill" id="uploadProgressFill"></div>
+                    </div>
+                </div>
+
+                <!-- Analysis Section -->
+                <div class="card">
+                    <div class="card-title">
+                        📊 Template Analysis
+                        <span class="badge" id="analysisBadge">Step 2</span>
+                    </div>
+                    <div id="analysisResult" style="font-size: 14px; color: #718096;">
+                        No analysis performed yet
+                    </div>
+                    <div id="analysisDetails" style="display: none; margin-top: 12px;">
+                        <div id="analysisContent" style="background: #f7fafc; padding: 12px; border-radius: 8px; max-height: 200px; overflow: auto; font-size: 12px; font-family: monospace;"></div>
+                    </div>
+                </div>
+
+                <!-- JSON Editor -->
+                <div class="card">
+                    <div class="card-title">
+                        ✏️ Edit Structure
+                        <span class="badge">Step 3</span>
+                        <button class="btn btn-outline" onclick="formatJSON()" style="padding: 4px 12px; font-size: 12px;">Format</button>
+                        <button class="btn btn-outline" onclick="validateJSON()" style="padding: 4px 12px; font-size: 12px;">Validate</button>
+                    </div>
+                    <textarea class="json-editor" id="jsonEditor" placeholder="Template structure will appear here after analysis..."></textarea>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div>
+                <!-- Prompt & Generate -->
+                <div class="card">
+                    <div class="card-title">
+                        💬 Content Generation
+                        <span class="badge">Step 4</span>
+                    </div>
+                    <label style="font-weight: 500; display: block; margin-bottom: 8px;">Describe the content you want:</label>
+                    <textarea class="prompt-box" id="promptBox" placeholder="Example: Generate a 5-slide presentation about sustainable energy with bullet points, statistics, and professional design..."></textarea>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="generateBtn" onclick="generateContent()">
+                            🚀 Generate with AI
+                        </button>
+                    </div>
+                    <div id="generationStatus" style="margin-top: 12px;"></div>
+                </div>
+
+                <!-- Output Format & Render -->
+                <div class="card">
+                    <div class="card-title">
+                        🎯 Output Format
+                        <span class="badge">Step 5</span>
+                    </div>
+                    <div class="format-selector" id="formatSelector">
+                        <div class="format-option selected" data-format="pptx">PPTX</div>
+                        <div class="format-option" data-format="pdf">PDF</div>
+                        <div class="format-option" data-format="docx">DOCX</div>
+                        <div class="format-option" data-format="xlsx">XLSX</div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-success" id="renderBtn" onclick="renderDocument()" disabled>
+                            ⚡ Render Document
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preview & Download -->
+                <div class="card">
+                    <div class="card-title">
+                        👁️ Preview & Download
+                        <span class="badge">Step 6</span>
+                    </div>
+                    <div class="preview-container" id="previewContainer">
+                        <div style="color: #718096; text-align: center; padding: 40px;">
+                            <div style="font-size: 48px; margin-bottom: 12px;">📋</div>
+                            <p>Generated document preview will appear here</p>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-success" id="downloadBtn" onclick="downloadDocument()" disabled>
+                            ⬇️ Download
+                        </button>
+           
+                        <button class="btn btn-danger" onclick="clearAll()">
+                            🗑️ Clear All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3 id="loadingMessage">Processing...</h3>
+            <p style="color: #718096; margin-top: 8px;" id="loadingDetail">Please wait</p>
+        </div>
+    </div>
+
+    <script>
+        let currentFileId = null;
+        let currentStructure = null;
+        let currentContent = null;
+        let currentStep = 1;
+        let selectedFormat = 'pptx';
+
+        // DOM Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const fileType = document.getElementById('fileType');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const jsonEditor = document.getElementById('jsonEditor');
+        const promptBox = document.getElementById('promptBox');
+        const generateBtn = document.getElementById('generateBtn');
+        const renderBtn = document.getElementById('renderBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const previewContainer = document.getElementById('previewContainer');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const loadingDetail = document.getElementById('loadingDetail');
+        const analysisResult = document.getElementById('analysisResult');
+        const analysisDetails = document.getElementById('analysisDetails');
+        const analysisContent = document.getElementById('analysisContent');
+
+        // File upload handling
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            const validTypes = ['application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'application/pdf',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            ];
+            const validExts = ['pptx', 'pdf', 'docx', 'xlsx'];
+            const ext = file.name.split('.').pop().toLowerCase();
+
+            if (!validExts.includes(ext)) {
+                showNotification('Invalid file type. Please upload PPTX, PDF, DOCX, or XLSX.', 'error');
+                return;
+            }
+
+            if (file.size > 50 * 1024 * 1024) {
+                showNotification('File size exceeds 50MB limit.', 'error');
+                return;
+            }
+
+            showLoading('Uploading file...', 'Please wait');
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.error) {
+                        showNotification(data.error, 'error');
+                        return;
+                    }
+                    currentFileId = data.file_id;
+                    fileName.textContent = data.filename;
+                    fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+                    fileType.textContent = data.type.toUpperCase();
+                    fileInfo.style.display = 'flex';
+                    analyzeBtn.disabled = false;
+                    updateStep(2);
+                    showNotification('File uploaded successfully!', 'success');
+                })
+                .catch(err => {
+                    hideLoading();
+                    showNotification('Upload failed: ' + err.message, 'error');
+                });
+        }
+
+        function removeFile() {
+            if (currentFileId) {
+                fetch(`/api/file/${currentFileId}`, { method: 'DELETE' })
+                    .catch(console.error);
+            }
+            currentFileId = null;
+            currentStructure = null;
+            currentContent = null;
+            fileInfo.style.display = 'none';
+            analyzeBtn.disabled = true;
+            jsonEditor.value = '';
+            analysisResult.textContent = 'No analysis performed yet';
+            analysisDetails.style.display = 'none';
+            renderBtn.disabled = true;
+            downloadBtn.disabled = true;
+            updateStep(1);
+            showNotification('File removed', 'info');
+        }
+
+        function analyzeFile() {
+            if (!currentFileId) {
+                showNotification('Please upload a file first.', 'error');
+                return;
+            }
+
+            showLoading('Analyzing template...', 'Extracting structure and layout');
+            fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ file_id: currentFileId })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.error) {
+                        showNotification(data.error, 'error');
+                        return;
+                    }
+                    currentStructure = data.structure;
+                    const prettyJSON = JSON.stringify(data.structure, null, 2);
+                    jsonEditor.value = prettyJSON;
+                    analysisResult.textContent = `✅ Analysis complete - ${data.type.toUpperCase()} template`;
+                    analysisDetails.style.display = 'block';
+                    analysisContent.textContent = prettyJSON;
+                    updateStep(3);
+                    showNotification('Template analysis complete!', 'success');
+                })
+                .catch(err => {
+                    hideLoading();
+                    showNotification('Analysis failed: ' + err.message, 'error');
+                });
+        }
+
+        function formatJSON() {
+            try {
+                const obj = JSON.parse(jsonEditor.value);
+                jsonEditor.value = JSON.stringify(obj, null, 2);
+                showNotification('JSON formatted successfully', 'success');
+            } catch (e) {
+                showNotification('Invalid JSON: ' + e.message, 'error');
+            }
+        }
+
+        function validateJSON() {
+            try {
+                const obj = JSON.parse(jsonEditor.value);
+                // Basic validation against structure
+                if (currentStructure && obj.type !== currentStructure.type) {
+                    showNotification(`Warning: Content type (${obj.type}) differs from template (${currentStructure.type})`,
+                        'error');
+                    return;
+                }
+                showNotification('JSON is valid!', 'success');
+            } catch (e) {
+                showNotification('Invalid JSON: ' + e.message, 'error');
+            }
+        }
+
+        function generateContent() {
+            if (!currentFileId) {
+                showNotification('Please upload and analyze a file first.', 'error');
+                return;
+            }
+
+            const prompt = promptBox.value.trim();
+            if (!prompt) {
+                showNotification('Please describe the content you want to generate.', 'error');
+                return;
+            }
+
+            showLoading('Generating content with Gemini AI...', 'This may take 10-30 seconds');
+            generateBtn.disabled = true;
+
+            fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        file_id: currentFileId,
+                        prompt: prompt
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    hideLoading();
+                    generateBtn.disabled = false;
+                    if (data.error) {
+                        showNotification('Generation failed: ' + data.error, 'error');
+                        return;
+                    }
+                    currentContent = data.content;
+                    // Update the JSON editor with the generated content
+                    jsonEditor.value = JSON.stringify(data.content, null, 2);
+                    renderBtn.disabled = false;
+                    updateStep(4);
+                    showNotification('Content generated successfully!', 'success');
+                    // Show preview of generated content
+                    showPreview(data.content);
+                })
+                .catch(err => {
+                    hideLoading();
+                    generateBtn.disabled = false;
+                    showNotification('Generation failed: ' + err.message, 'error');
+                });
+        }
+
+        function showPreview(content) {
+            previewContainer.innerHTML = `
+                <div style="background: #f7fafc; padding: 16px; border-radius: 8px;">
+                    <h4 style="margin-bottom: 8px;">📄 Generated Content Preview</h4>
+                    <pre style="font-size: 12px; font-family: monospace; max-height: 300px; overflow: auto;">${JSON.stringify(content, null, 2)}</pre>
+                </div>
+            `;
+        }
+        function renderDocument() {
+            if (!currentFileId) {
+                showNotification('Please generate content first.', 'error');
+                return;
+            }
+
+            showLoading('Rendering document...', `Creating ${selectedFormat.toUpperCase()} file`);
+            renderBtn.disabled = true;
+
+            fetch('/api/render', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        file_id: currentFileId,
+                        format: selectedFormat
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    hideLoading();
+                    renderBtn.disabled = false;
+                    if (data.error) {
+                        showNotification('Rendering failed: ' + data.error, 'error');
+                        return;
+                    }
+                    downloadBtn.disabled = false;
+                    updateStep(5);
+                    showNotification('Document rendered successfully!', 'success');
+                    // Show render preview
+                    previewContainer.innerHTML = `
+                        <div style="background: #f0fff4; padding: 16px; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 48px; margin-bottom: 8px;">✅</div>
+                            <h4>Document Ready</h4>
+                            <p style="color: #718096; font-size: 14px;">${selectedFormat.toUpperCase()} file has been rendered</p>
+                            <p style="color: #48bb78; font-size: 14px; font-weight: 500;">Click Download to save your file</p>
+                        </div>
+                    `;
+                })
+                .catch(err => {
+                    hideLoading();
+                    renderBtn.disabled = false;
+                    showNotification('Rendering failed: ' + err.message, 'error');
+                });
+        }
+
+        function downloadDocument() {
+            if (!currentFileId) {
+                showNotification('Please render a document first.', 'error');
+                return;
+            }
+
+            // Get the output file ID from the server
+            fetch(`/api/file/${currentFileId}`, { method: 'GET' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.output_file_id) {
+                        const downloadUrl = `/api/download/${data.output_file_id}`;
+                        window.location.href = downloadUrl;
+                        updateStep(6);
+                        showNotification('Download started!', 'success');
+                    } else {
+                        showNotification('No rendered file found. Please render first.', 'error');
+                    }
+                })
+                .catch(err => {
+                    showNotification('Download failed: ' + err.message, 'error');
+                });
+        }
+
+        function clearAll() {
+            if (currentFileId) {
+                fetch(`/api/file/${currentFileId}`, { method: 'DELETE' }).catch(console.error);
+            }
+            currentFileId = null;
+            currentStructure = null;
+            currentContent = null;
+            fileInfo.style.display = 'none';
+            analyzeBtn.disabled = true;
+            renderBtn.disabled = true;
+            downloadBtn.disabled = true;
+            jsonEditor.value = '';
+            promptBox.value = '';
+            analysisResult.textContent = 'No analysis performed yet';
+            analysisDetails.style.display = 'none';
+            previewContainer.innerHTML = `
+                <div style="color: #718096; text-align: center; padding: 40px;">
+                    <div style="font-size: 48px; margin-bottom: 12px;">📋</div>
+                    <p>Generated document preview will appear here</p>
+                </div>
+            `;
+            updateStep(1);
+            showNotification('All data cleared', 'info');
+        }
+
+        // Format selector
+        document.querySelectorAll('.format-option').forEach(el => {
+            el.addEventListener('click', function() {
+                document.querySelectorAll('.format-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedFormat = this.dataset.format;
+            });
+        });
+
+        function updateStep(step) {
+            currentStep = step;
+            document.querySelectorAll('.step').forEach(el => {
+                const num = parseInt(el.dataset.step);
+                el.classList.remove('active', 'completed');
+                if (num === step) el.classList.add('active');
+                else if (num < step) el.classList.add('completed');
+            });
+        }
+
+        function showLoading(message, detail) {
+            loadingMessage.textContent = message;
+            loadingDetail.textContent = detail || 'Please wait...';
+            loadingOverlay.classList.add('active');
+        }
+
+        function hideLoading() {
+            loadingOverlay.classList.remove('active');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notif = document.createElement('div');
+            notif.className = `notification notification-${type}`;
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            setTimeout(() => {
+                notif.style.opacity = '0';
+                notif.style.transform = 'translateX(100%)';
+                setTimeout(() => notif.remove(), 300);
+            }, 3000);
+        }
+
+        // Health check on load
+        fetch('/api/health')
+            .then(res => res.json())
+            .then(data => console.log('API Health:', data))
+            .catch(err => console.error('API Health check failed:', err));
+    </script>
+</body>
+</html>
